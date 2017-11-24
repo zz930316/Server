@@ -1,4 +1,4 @@
-// TcpServer.cpp : ¶¨Òå¿ØÖÆÌ¨Ó¦ÓÃ³ÌĞòµÄÈë¿Úµã¡£  
+// TcpServer.cpp : å®šä¹‰æ§åˆ¶å°åº”ç”¨ç¨‹åºçš„å…¥å£ç‚¹ã€‚  
 
 #include <winsock2.h>  
 #include <iostream>  
@@ -10,9 +10,9 @@ using namespace std;
 
 
 /*	
-			ÔËĞĞcmd  £º
-netstat -nao        :			²é¿´ÓĞÄÄĞ©¶Ë¿ÚÔÚ±»Ê¹ÓÃ;
-netstat -nao | findstr 63790  :  ²éÕÒ63790Õâ¸ö¶Ë¿Ú;
+			è¿è¡Œcmd  ï¼š
+netstat -nao        :			æŸ¥çœ‹æœ‰å“ªäº›ç«¯å£åœ¨è¢«ä½¿ç”¨;
+netstat -nao | findstr 63790  :  æŸ¥æ‰¾63790è¿™ä¸ªç«¯å£;
 */
 
 int main()
@@ -22,79 +22,80 @@ int main()
 	int retVal;
 	char buf[BUF_SIZE];
 
-	//³õÊ¼»¯Socket  
-	if (WSAStartup(MAKEWORD(2, 2), &wsd) != 0)//WSAStartupµÄ¹¦ÄÜÊÇ³õÊ¼»¯Winsock DLL£¬
+	//åˆå§‹åŒ–Socket  
+	//MAKEWORD(1, 1)å’ŒMAKEWORD(2, 2)çš„åŒºåˆ«åœ¨äºï¼Œå‰è€…åªèƒ½ä¸€æ¬¡æ¥æ”¶ä¸€æ¬¡ï¼Œä¸èƒ½é©¬ä¸Šå‘é€ï¼Œè€Œåè€…èƒ½
+	if (WSAStartup(MAKEWORD(2, 2), &wsd) != 0)//WSAStartupçš„åŠŸèƒ½æ˜¯åˆå§‹åŒ–Winsock DLLï¼Œ
 	{
 		cout << "WSAStartup failed!" << endl;
 		return -1;
 	}
-	//´´½¨ÓÃÓÚ¼àÌıµÄSocket  
+	//åˆ›å»ºç”¨äºç›‘å¬çš„Socket  
 	sServer = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (INVALID_SOCKET == sServer)//INVALID_SOCKET  0  ÊÇÎŞĞ§Ì×½Ó×Ö
+	if (INVALID_SOCKET == sServer)//INVALID_SOCKET  0  æ˜¯æ— æ•ˆå¥—æ¥å­—
 	{
 		cout << "socket failed!" << endl;
-		WSACleanup();/*WSACleanupÊÇÀ´½â³ıÓëSocket¿âµÄ°ó¶¨²¢ÇÒÊÍ·ÅSocket¿âËùÕ¼ÓÃµÄÏµÍ³×ÊÔ´¡£*/
+		WSACleanup();/*WSACleanupæ˜¯æ¥è§£é™¤ä¸Socketåº“çš„ç»‘å®šå¹¶ä¸”é‡Šæ”¾Socketåº“æ‰€å ç”¨çš„ç³»ç»Ÿèµ„æºã€‚*/
 		return -1;
 	}
-	//ÉèÖÃSocketÎª·Ç×èÈûÄ£Ê½  
+	//è®¾ç½®Socketä¸ºéé˜»å¡æ¨¡å¼  
 	int iMode = 1;
 	/*int ioctlsocket( SOCKET s, long cmd, u_long FAR *argp );
-	s£ºÒ»¸ö±êÊ¶Ì×½Ó¿ÚµÄÃèÊö×Ö;		cmd£º¶ÔÌ×½Ó¿ÚsµÄ²Ù×÷ÃüÁî;		argp£ºÖ¸ÏòcmdÃüÁîËù´ø²ÎÊıµÄÖ¸Õë;*/
-	retVal = ioctlsocket(sServer, FIONBIO, (u_long FAR*)&iMode); //FIONBIO£º½«socketÉèÖÃÎª·Ç×èÈû
-																//u_long ÎŞ·ûºÅ³¤ÕûĞÍ 4¸ö×Ö½Ú
-	//µ±ioctlsocketº¯Êı³É¹¦ºó£¬ioctlsocket()·µ»Ø0¡£·ñÔòµÄ»°£¬·µ»ØSOCKET_ERROR´íÎó£¬
+	sï¼šä¸€ä¸ªæ ‡è¯†å¥—æ¥å£çš„æè¿°å­—;		cmdï¼šå¯¹å¥—æ¥å£sçš„æ“ä½œå‘½ä»¤;		argpï¼šæŒ‡å‘cmdå‘½ä»¤æ‰€å¸¦å‚æ•°çš„æŒ‡é’ˆ;*/
+	retVal = ioctlsocket(sServer, FIONBIO, (u_long FAR*)&iMode); //FIONBIOï¼šå°†socketè®¾ç½®ä¸ºéé˜»å¡
+																//u_long æ— ç¬¦å·é•¿æ•´å‹ 4ä¸ªå­—èŠ‚
+	//å½“ioctlsocketå‡½æ•°æˆåŠŸåï¼Œioctlsocket()è¿”å›0ã€‚å¦åˆ™çš„è¯ï¼Œè¿”å›SOCKET_ERRORé”™è¯¯ï¼Œ
 	if (retVal == SOCKET_ERROR)//SOCKET_ERROR -1
 	{
 		cout << "ioctlsocket failed!" << endl;
-		WSACleanup();/*WSACleanupÊÇÀ´½â³ıÓëSocket¿âµÄ°ó¶¨²¢ÇÒÊÍ·ÅSocket¿âËùÕ¼ÓÃµÄÏµÍ³×ÊÔ´¡£*/
+		WSACleanup();/*WSACleanupæ˜¯æ¥è§£é™¤ä¸Socketåº“çš„ç»‘å®šå¹¶ä¸”é‡Šæ”¾Socketåº“æ‰€å ç”¨çš„ç³»ç»Ÿèµ„æºã€‚*/
 		return -1;
 	}
-	//ÉèÖÃ·şÎñÆ÷SocketµØÖ·  
-	sockaddr_in addrServ;//´´½¨´æ´¢µØÖ·ºÍ¶Ë¿ÚµÄ½á¹¹Ìå
+	//è®¾ç½®æœåŠ¡å™¨Socketåœ°å€  
+	sockaddr_in addrServ;//åˆ›å»ºå­˜å‚¨åœ°å€å’Œç«¯å£çš„ç»“æ„ä½“
 
 	addrServ.sin_family = AF_INET;
-	addrServ.sin_port = htons(63790);/*htonsÓÃÀ´½«Ö÷»ú¶Ë¿Ú×ª»»ÎªÍøÂç×Ö½ÚË³Ğò(to network short);
-							htons ½«ÎŞ·ûºÅ¶ÌÕûĞÍ×ª»»ÎªÍøÂç×Ö½ÚË³Ğò;*/
-	addrServ.sin_addr.S_un.S_addr = htonl(INADDR_ANY);/*htonlÓÃÀ´½«Ö÷»úµØÖ·×ª»»ÎªÍøÂç×Ö½ÚË³Ğò(to network long);
-					htonl ½«ÎŞ·ûºÅ³¤ÕûĞÎ×ª»»ÎªÍøÂç×Ö½ÚË³Ğò;
-					INADDR_ANY¾ÍÊÇÖ¸¶¨µØÖ·Îª0.0.0.0µÄµØÖ·,±íÊ¾²»È·¶¨µØÖ·,»ò¡°ÈÎÒâµØÖ·¡±¡£¡±  */
+	addrServ.sin_port = htons(63790);/*htonsç”¨æ¥å°†ä¸»æœºç«¯å£è½¬æ¢ä¸ºç½‘ç»œå­—èŠ‚é¡ºåº(to network short);
+							htons å°†æ— ç¬¦å·çŸ­æ•´å‹è½¬æ¢ä¸ºç½‘ç»œå­—èŠ‚é¡ºåº;*/
+	addrServ.sin_addr.S_un.S_addr = htonl(INADDR_ANY);/*htonlç”¨æ¥å°†ä¸»æœºåœ°å€è½¬æ¢ä¸ºç½‘ç»œå­—èŠ‚é¡ºåº(to network long);
+					htonl å°†æ— ç¬¦å·é•¿æ•´å½¢è½¬æ¢ä¸ºç½‘ç»œå­—èŠ‚é¡ºåº;
+					INADDR_ANYå°±æ˜¯æŒ‡å®šåœ°å€ä¸º0.0.0.0çš„åœ°å€,è¡¨ç¤ºä¸ç¡®å®šåœ°å€,æˆ–â€œä»»æ„åœ°å€â€ã€‚â€  */
 
-	//°ó¶¨Socket //½«±¾µØµØÖ·°ó¶¨µ½Ëù´´½¨µÄServerÉÏ 
-	//·µ»ØÖµ±íÊ¾°ó¶¨²Ù×÷ÊÇ·ñ³É¹¦£¬0±íÊ¾³É¹¦£¬ -1±íÊ¾²»³É¹¦
+	//ç»‘å®šSocket //å°†æœ¬åœ°åœ°å€ç»‘å®šåˆ°æ‰€åˆ›å»ºçš„Serverä¸Š 
+	//è¿”å›å€¼è¡¨ç¤ºç»‘å®šæ“ä½œæ˜¯å¦æˆåŠŸï¼Œ0è¡¨ç¤ºæˆåŠŸï¼Œ -1è¡¨ç¤ºä¸æˆåŠŸ
 	retVal = bind(sServer, (const struct sockaddr*)&addrServ, sizeof(sockaddr_in));
 
 	if (retVal == SOCKET_ERROR)//SOCKET_ERROR -1
 	{
 		cout << "bind failed!" << endl;
-		closesocket(sServer);//¹Ø±ÕsServer£¨·şÎñÆ÷£©IP£¬¶Ë¿ÚÁ¬½Ó
-		WSACleanup();/*WSACleanupÊÇÀ´½â³ıÓëSocket¿âµÄ°ó¶¨²¢ÇÒÊÍ·ÅSocket¿âËùÕ¼ÓÃµÄÏµÍ³×ÊÔ´¡£*/
+		closesocket(sServer);//å…³é—­sServerï¼ˆæœåŠ¡å™¨ï¼‰IPï¼Œç«¯å£è¿æ¥
+		WSACleanup();/*WSACleanupæ˜¯æ¥è§£é™¤ä¸Socketåº“çš„ç»‘å®šå¹¶ä¸”é‡Šæ”¾Socketåº“æ‰€å ç”¨çš„ç³»ç»Ÿèµ„æºã€‚*/
 		return -1;
 	}
-	//¼àÌı  Ã»ÓĞ´íÎó·¢Éú£¬listen()·µ»Ø0¡£·ñÔòµÄ»°£¬·µ»Ø-1
+	//ç›‘å¬  æ²¡æœ‰é”™è¯¯å‘ç”Ÿï¼Œlisten()è¿”å›0ã€‚å¦åˆ™çš„è¯ï¼Œè¿”å›-1
 	retVal = listen(sServer, 1);
 	if (retVal == SOCKET_ERROR)//SOCKET_ERROR -1
 	{
 		cout << "listen failed!" << endl;
-		closesocket(sServer);//¹Ø±ÕsServerÁ¬½Ó
-		WSACleanup();/*WSACleanupÊÇÀ´½â³ıÓëSocket¿âµÄ°ó¶¨²¢ÇÒÊÍ·ÅSocket¿âËùÕ¼ÓÃµÄÏµÍ³×ÊÔ´¡£*/
+		closesocket(sServer);//å…³é—­sServerè¿æ¥
+		WSACleanup();/*WSACleanupæ˜¯æ¥è§£é™¤ä¸Socketåº“çš„ç»‘å®šå¹¶ä¸”é‡Šæ”¾Socketåº“æ‰€å ç”¨çš„ç³»ç»Ÿèµ„æºã€‚*/
 		return -1;
 	}
-	//½ÓÊÜ¿Í»§ÇëÇó  
-	cout << "TCP·şÎñÆ÷Æô¶¯¡­¡­" << endl;
+	//æ¥å—å®¢æˆ·è¯·æ±‚  
+	cout << "TCPæœåŠ¡å™¨å¯åŠ¨â€¦â€¦" << endl;
 	sockaddr_in addrClient;
 	int addrClientlen = sizeof(addrClient);
 	SOCKET sClient;
-	//Ñ­»·µÈ´ı  
+	//å¾ªç¯ç­‰å¾…  
 
 	while (true)
 	{
-		//ÎªÒ»¸öÁ¬½ÓÇëÇóÌá¹©·şÎñ¡£
-		//addrClient°üº¬ÁË·¢³öÁ¬½ÓÇëÇóµÄ¿Í»§»úIPµØÖ·ĞÅÏ¢£»·µ»ØµÄĞÂsocketÃèÊö·şÎñÆ÷Óë¸Ã¿Í»§»úµÄÁ¬½Ó
+		//ä¸ºä¸€ä¸ªè¿æ¥è¯·æ±‚æä¾›æœåŠ¡ã€‚
+		//addrClientåŒ…å«äº†å‘å‡ºè¿æ¥è¯·æ±‚çš„å®¢æˆ·æœºIPåœ°å€ä¿¡æ¯ï¼›è¿”å›çš„æ–°socketæè¿°æœåŠ¡å™¨ä¸è¯¥å®¢æˆ·æœºçš„è¿æ¥
 		sClient = accept(sServer, (sockaddr FAR*)&addrClient, &addrClientlen);
-		if (INVALID_SOCKET == sClient)//INVALID_SOCKET ÊÇÎŞĞ§Ì×½Ó×Ö
+		if (INVALID_SOCKET == sClient)//INVALID_SOCKET æ˜¯æ— æ•ˆå¥—æ¥å­—
 		{
-			int err = WSAGetLastError(); //Ö¸¸Ãº¯Êı·µ»ØÉÏ´Î·¢ÉúµÄÍøÂç´íÎó,Õâ¸öº¯ÊıÓĞºÜ¶àÖÖ·µ»ØÖµ £¬°Ù¶È...
-			if (err == WSAEWOULDBLOCK)//WSAEWOULDBLOCK : 10035 ×ÊÔ´ÔİÊ±²»¿ÉÓÃ
+			int err = WSAGetLastError(); //æŒ‡è¯¥å‡½æ•°è¿”å›ä¸Šæ¬¡å‘ç”Ÿçš„ç½‘ç»œé”™è¯¯,è¿™ä¸ªå‡½æ•°æœ‰å¾ˆå¤šç§è¿”å›å€¼ ï¼Œç™¾åº¦...
+			if (err == WSAEWOULDBLOCK)//WSAEWOULDBLOCK : 10035 èµ„æºæš‚æ—¶ä¸å¯ç”¨
 			{
 				Sleep(100);
 				continue;
@@ -102,95 +103,95 @@ int main()
 			else
 			{
 				cout << "accept failed!" << endl;
-				closesocket(sServer);//¹Ø±ÕsServer£¨·şÎñÆ÷£©IP£¬¶Ë¿ÚÁ¬½Ó
-				WSACleanup();/*WSACleanupÊÇÀ´½â³ıÓëSocket¿âµÄ°ó¶¨²¢ÇÒÊÍ·ÅSocket¿âËùÕ¼ÓÃµÄÏµÍ³×ÊÔ´¡£*/
+				closesocket(sServer);//å…³é—­sServerï¼ˆæœåŠ¡å™¨ï¼‰IPï¼Œç«¯å£è¿æ¥
+				WSACleanup();/*WSACleanupæ˜¯æ¥è§£é™¤ä¸Socketåº“çš„ç»‘å®šå¹¶ä¸”é‡Šæ”¾Socketåº“æ‰€å ç”¨çš„ç³»ç»Ÿèµ„æºã€‚*/
 				return -1;
 			}
 		}
 		break;
 
 	}
-	//Ñ­»·½ÓÊÜ¿Í»§¶ËµÄÊı¾İ£¬Ö±µ½¿Í»§¶Ë·¢ËÍquitÃüÁîºóÍË³ö  
+	//å¾ªç¯æ¥å—å®¢æˆ·ç«¯çš„æ•°æ®ï¼Œç›´åˆ°å®¢æˆ·ç«¯å‘é€quitå‘½ä»¤åé€€å‡º  
 	while (true)
 	{
 		/*void ZeroMemory( PVOID Destination,SIZE_T Length );
-			Destination :Ö¸ÏòÒ»¿é×¼±¸ÓÃ0À´Ìî³äµÄÄÚ´æÇøÓòµÄ¿ªÊ¼µØÖ·¡£
-			Length :×¼±¸ÓÃ0À´Ìî³äµÄÄÚ´æÇøÓòµÄ´óĞ¡£¬°´×Ö½ÚÀ´¼ÆËã¡£
-		ZeroMemoryÖ»ÊÇ½«Ö¸¶¨µÄÄÚ´æ¿éÇåÁã¡£Ê¹ÓÃ½á¹¹Ç°ÇåÁã£¬¶ø²»ÈÃ½á¹¹µÄ³ÉÔ±ÊıÖµ¾ßÓĞ²»È·¶¨ĞÔ£¬
-			¾ÍÊÇ½²bufÊı×éÖĞµÄ64¸öÔªËØÈ«²¿¸³ÖµÎª0*/
+			Destination :æŒ‡å‘ä¸€å—å‡†å¤‡ç”¨0æ¥å¡«å……çš„å†…å­˜åŒºåŸŸçš„å¼€å§‹åœ°å€ã€‚
+			Length :å‡†å¤‡ç”¨0æ¥å¡«å……çš„å†…å­˜åŒºåŸŸçš„å¤§å°ï¼ŒæŒ‰å­—èŠ‚æ¥è®¡ç®—ã€‚
+		ZeroMemoryåªæ˜¯å°†æŒ‡å®šçš„å†…å­˜å—æ¸…é›¶ã€‚ä½¿ç”¨ç»“æ„å‰æ¸…é›¶ï¼Œè€Œä¸è®©ç»“æ„çš„æˆå‘˜æ•°å€¼å…·æœ‰ä¸ç¡®å®šæ€§ï¼Œ
+			å°±æ˜¯è®²bufæ•°ç»„ä¸­çš„64ä¸ªå…ƒç´ å…¨éƒ¨èµ‹å€¼ä¸º0*/
 		ZeroMemory(buf, BUF_SIZE);
 
-		/*½ÓÊÕ¶Ë·¢ËÍÀ´µÄÊı¾İ:
-			sockfd  :  ½ÓÊÕ¶ËÌ×½Ó×ÖÃèÊö·û;
-			buff    :  ÓÃÀ´´æ·Årecvº¯Êı½ÓÊÕµ½µÄÊı¾İµÄ»º³åÇø;
-			nbytes  :  Ö¸Ã÷buffµÄ³¤¶È;
-			flags   :  Ò»°ãÖÃÎª0;
+		/*æ¥æ”¶ç«¯å‘é€æ¥çš„æ•°æ®:
+			sockfd  :  æ¥æ”¶ç«¯å¥—æ¥å­—æè¿°ç¬¦;
+			buff    :  ç”¨æ¥å­˜æ”¾recvå‡½æ•°æ¥æ”¶åˆ°çš„æ•°æ®çš„ç¼“å†²åŒº;
+			nbytes  :  æŒ‡æ˜buffçš„é•¿åº¦;
+			flags   :  ä¸€èˆ¬ç½®ä¸º0;
 			recv(int sockfd, void *buff, size_t nbytes, int flags);*/
 		retVal = recv(sClient, buf, BUFSIZ, 0);
-		if (SOCKET_ERROR == retVal)		//SOCKET_ERROR 0 ½Ó¿Ú´íÎó
+		if (SOCKET_ERROR == retVal)		//SOCKET_ERROR 0 æ¥å£é”™è¯¯
 		{
-			int err = WSAGetLastError();	//Ö¸¸Ãº¯Êı·µ»ØÉÏ´Î·¢ÉúµÄÍøÂç´íÎó,Õâ¸öº¯ÊıÓĞºÜ¶àÖÖ·µ»ØÖµ £¬°Ù¶È...
-			if (err == WSAEWOULDBLOCK)		//WSAEWOULDBLOCK : 10035 ×ÊÔ´ÔİÊ±²»¿ÉÓÃ
+			int err = WSAGetLastError();	//æŒ‡è¯¥å‡½æ•°è¿”å›ä¸Šæ¬¡å‘ç”Ÿçš„ç½‘ç»œé”™è¯¯,è¿™ä¸ªå‡½æ•°æœ‰å¾ˆå¤šç§è¿”å›å€¼ ï¼Œç™¾åº¦...
+			if (err == WSAEWOULDBLOCK)		//WSAEWOULDBLOCK : 10035 èµ„æºæš‚æ—¶ä¸å¯ç”¨
 			{
 				Sleep(100);
 				continue;
 			}
 			else if (err == WSAETIMEDOUT || err == WSAENETDOWN)
-			{	//WSAETIMEDOUT£º10060 - Á¬½Ó³¬Ê±    WSAENETDOWN£º10050 - ÍøÂç¶Ï¿ª
+			{	//WSAETIMEDOUTï¼š10060 - è¿æ¥è¶…æ—¶    WSAENETDOWNï¼š10050 - ç½‘ç»œæ–­å¼€
 				
 				cout << "recv failed!" << endl;
-				closesocket(sServer);	//¹Ø±ÕÓësServer£¨·şÎñÆ÷£©IP£¬¶Ë¿ÚµÄÁ¬½Ó
-				closesocket(sClient);	//¹Ø±ÕÓësClient£¨¿Í»§¶Ë£©IP£¬¶Ë¿ÚµÄÁ¬½Ó
-				WSACleanup();/*WSACleanupÊÇÀ´½â³ıÓëSocket¿âµÄ°ó¶¨²¢ÇÒÊÍ·ÅSocket¿âËùÕ¼ÓÃµÄÏµÍ³×ÊÔ´¡£*/
+				closesocket(sServer);	//å…³é—­ä¸sServerï¼ˆæœåŠ¡å™¨ï¼‰IPï¼Œç«¯å£çš„è¿æ¥
+				closesocket(sClient);	//å…³é—­ä¸sClientï¼ˆå®¢æˆ·ç«¯ï¼‰IPï¼Œç«¯å£çš„è¿æ¥
+				WSACleanup();/*WSACleanupæ˜¯æ¥è§£é™¤ä¸Socketåº“çš„ç»‘å®šå¹¶ä¸”é‡Šæ”¾Socketåº“æ‰€å ç”¨çš„ç³»ç»Ÿèµ„æºã€‚*/
 				return -1;
 			}
 		}
-		//»ñÈ¡ÏµÍ³Ê±¼ä  
-		SYSTEMTIME st;			//Õâ¸ö½á¹¹Ìå´æ·ÅÄê£¬ÔÂ£¬ÈÕ£¬ĞÇÆÚ£¬Ê±£¬·Ö£¬Ãë£¬ºÁÃëµÈ;
-		GetLocalTime(&st);		//»ñÈ¡µ±µØµÄµ±Ç°ÏµÍ³ÈÕÆÚºÍÊ±¼ä,´æ·ÅÔÚst½á¹¹ÌåÖĞ;
+		//è·å–ç³»ç»Ÿæ—¶é—´  
+		SYSTEMTIME st;			//è¿™ä¸ªç»“æ„ä½“å­˜æ”¾å¹´ï¼Œæœˆï¼Œæ—¥ï¼Œæ˜ŸæœŸï¼Œæ—¶ï¼Œåˆ†ï¼Œç§’ï¼Œæ¯«ç§’ç­‰;
+		GetLocalTime(&st);		//è·å–å½“åœ°çš„å½“å‰ç³»ç»Ÿæ—¥æœŸå’Œæ—¶é—´,å­˜æ”¾åœ¨stç»“æ„ä½“ä¸­;
 		char sDateTime[30];
 
-		//½«SYSTEMTIME½á¹¹ÌåÖĞµÄÊ±¼äĞÅÏ¢´æ·ÅÔÚsDateTimeÊı×éÖĞ
+		//å°†SYSTEMTIMEç»“æ„ä½“ä¸­çš„æ—¶é—´ä¿¡æ¯å­˜æ”¾åœ¨sDateTimeæ•°ç»„ä¸­
 		sprintf_s(sDateTime, "%4d-%2d-%2d %2d:%2d:%2d", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
-		//´òÓ¡Êä³öĞÅÏ¢  
+		//æ‰“å°è¾“å‡ºä¿¡æ¯  
 		printf("%s,Recv From Client [%s:%d]:%s\n", 
 			sDateTime, inet_ntoa(addrClient.sin_addr), addrClient.sin_port, buf);
-			/*inet_ntoaÍøÂçµØÖ·×ª»»×ªµã·ÖÊ®½øÖÆµÄ×Ö·û´®Ö¸Õë;*/
+			/*inet_ntoaç½‘ç»œåœ°å€è½¬æ¢è½¬ç‚¹åˆ†åè¿›åˆ¶çš„å­—ç¬¦ä¸²æŒ‡é’ˆ;*/
 			
-		//Èç¹û¿Í»§¶Ë·¢ËÍ¡°quit¡±×Ö·û´®£¬Ôò·şÎñÆ÷ÍË³ö  
+		//å¦‚æœå®¢æˆ·ç«¯å‘é€â€œquitâ€å­—ç¬¦ä¸²ï¼Œåˆ™æœåŠ¡å™¨é€€å‡º  
 		if (strcmp(buf, "quit") == 0)
 		{	
-	/*·¢ËÍÊı¾İ¶Ë:	sockfd :  Ö¸¶¨·¢ËÍ¶ËÌ×½Ó×ÖÃèÊö·û;
-					buff   :  ´æ·ÅÒª·¢ËÍÊı¾İµÄ»º³åÇø;
-					nbytes :  Êµ¼ÊÒª¸ÄÉÆµÄÊı¾İµÄ×Ö½ÚÊı;
-					flags  :  Ò»°ãÖÃÎª0;
+	/*å‘é€æ•°æ®ç«¯:	sockfd :  æŒ‡å®šå‘é€ç«¯å¥—æ¥å­—æè¿°ç¬¦;
+					buff   :  å­˜æ”¾è¦å‘é€æ•°æ®çš„ç¼“å†²åŒº;
+					nbytes :  å®é™…è¦æ”¹å–„çš„æ•°æ®çš„å­—èŠ‚æ•°;
+					flags  :  ä¸€èˆ¬ç½®ä¸º0;
 				send(int sockfd, const void *buff, size_t nbytes, int flags);
-				ÈôÎŞ´íÎó·¢Éú£¬send()·µ»ØËù·¢ËÍÊı¾İµÄ×ÜÊı£¨Çë×¢ÒâÕâ¸öÊı×Ö¿ÉÄÜĞ¡ÓÚlenÖĞËù¹æ¶¨µÄ´óĞ¡£©¡£
-				·ñÔòµÄ»°£¬·µ»Ø//SOCKET_ERROR 0 ½Ó¿Ú´íÎó£¬Ó¦ÓÃ³ÌĞò¿ÉÍ¨¹ıWSAGetLastError()»ñÈ¡ÏàÓ¦´íÎó´úÂë¡£*/
+				è‹¥æ— é”™è¯¯å‘ç”Ÿï¼Œsend()è¿”å›æ‰€å‘é€æ•°æ®çš„æ€»æ•°ï¼ˆè¯·æ³¨æ„è¿™ä¸ªæ•°å­—å¯èƒ½å°äºlenä¸­æ‰€è§„å®šçš„å¤§å°ï¼‰ã€‚
+				å¦åˆ™çš„è¯ï¼Œè¿”å›//SOCKET_ERROR 0 æ¥å£é”™è¯¯ï¼Œåº”ç”¨ç¨‹åºå¯é€šè¿‡WSAGetLastError()è·å–ç›¸åº”é”™è¯¯ä»£ç ã€‚*/
 			retVal = send(sClient, "quit", strlen("quit"), 0);
 			break;
 		}
 		else
 		{
-			char msg[BUF_SIZE];		//×Ô¶¨Òåºê    BUF_SIZE  64
+			char msg[BUF_SIZE];		//è‡ªå®šä¹‰å®    BUF_SIZE  64
 			
-			//½«SYSTEMTIME½á¹¹ÌåÖĞµÄÊ±¼äĞÅÏ¢´æ·ÅÔÚsDateTimeÊı×éÖĞ
+			//å°†SYSTEMTIMEç»“æ„ä½“ä¸­çš„æ—¶é—´ä¿¡æ¯å­˜æ”¾åœ¨sDateTimeæ•°ç»„ä¸­
 			sprintf_s(msg, "Message received - %s", buf);
 			while (true)
 			{
-				/*·¢ËÍÊı¾İ¶Ë:
-					sockfd :  Ö¸¶¨·¢ËÍ¶ËÌ×½Ó×ÖÃèÊö·û;
-					buff   :  ´æ·ÅÒª·¢ËÍÊı¾İµÄ»º³åÇø;
-					nbytes :  Êµ¼ÊÒª¸ÄÉÆµÄÊı¾İµÄ×Ö½ÚÊı;
-					flags  :  Ò»°ãÖÃÎª0;
+				/*å‘é€æ•°æ®ç«¯:
+					sockfd :  æŒ‡å®šå‘é€ç«¯å¥—æ¥å­—æè¿°ç¬¦;
+					buff   :  å­˜æ”¾è¦å‘é€æ•°æ®çš„ç¼“å†²åŒº;
+					nbytes :  å®é™…è¦æ”¹å–„çš„æ•°æ®çš„å­—èŠ‚æ•°;
+					flags  :  ä¸€èˆ¬ç½®ä¸º0;
 				send(int sockfd, const void *buff, size_t nbytes, int flags);
-				ÈôÎŞ´íÎó·¢Éú£¬send()·µ»ØËù·¢ËÍÊı¾İµÄ×ÜÊı£¨Çë×¢ÒâÕâ¸öÊı×Ö¿ÉÄÜĞ¡ÓÚlenÖĞËù¹æ¶¨µÄ´óĞ¡£©¡£
-				·ñÔòµÄ»°£¬·µ»Ø//SOCKET_ERROR 0 ½Ó¿Ú´íÎó£¬Ó¦ÓÃ³ÌĞò¿ÉÍ¨¹ıWSAGetLastError()»ñÈ¡ÏàÓ¦´íÎó´úÂë¡£*/
+				è‹¥æ— é”™è¯¯å‘ç”Ÿï¼Œsend()è¿”å›æ‰€å‘é€æ•°æ®çš„æ€»æ•°ï¼ˆè¯·æ³¨æ„è¿™ä¸ªæ•°å­—å¯èƒ½å°äºlenä¸­æ‰€è§„å®šçš„å¤§å°ï¼‰ã€‚
+				å¦åˆ™çš„è¯ï¼Œè¿”å›//SOCKET_ERROR 0 æ¥å£é”™è¯¯ï¼Œåº”ç”¨ç¨‹åºå¯é€šè¿‡WSAGetLastError()è·å–ç›¸åº”é”™è¯¯ä»£ç ã€‚*/
 				retVal = send(sClient, msg, strlen(msg), 0);
-				if (SOCKET_ERROR == retVal)		//SOCKET_ERROR 0 ½Ó¿Ú´íÎó
+				if (SOCKET_ERROR == retVal)		//SOCKET_ERROR 0 æ¥å£é”™è¯¯
 				{
-					int err = WSAGetLastError();	//Ö¸¸Ãº¯Êı·µ»ØÉÏ´Î·¢ÉúµÄÍøÂç´íÎó,Õâ¸öº¯ÊıÓĞºÜ¶àÖÖ·µ»ØÖµ £¬°Ù¶È...
-					if (err == WSAEWOULDBLOCK)		//WSAEWOULDBLOCK : 10035 ×ÊÔ´ÔİÊ±²»¿ÉÓÃ
+					int err = WSAGetLastError();	//æŒ‡è¯¥å‡½æ•°è¿”å›ä¸Šæ¬¡å‘ç”Ÿçš„ç½‘ç»œé”™è¯¯,è¿™ä¸ªå‡½æ•°æœ‰å¾ˆå¤šç§è¿”å›å€¼ ï¼Œç™¾åº¦...
+					if (err == WSAEWOULDBLOCK)		//WSAEWOULDBLOCK : 10035 èµ„æºæš‚æ—¶ä¸å¯ç”¨
 					{
 						Sleep(100);
 						continue;
@@ -198,9 +199,9 @@ int main()
 					else
 					{
 						cout << "send failed!" << endl;
-						closesocket(sServer);	//¹Ø±ÕsServer£¨·şÎñÆ÷£©IP£¬¶Ë¿ÚÁ¬½Ó
-						closesocket(sClient);	//¹Ø±ÕsClient£¨¿Í»§¶Ë£©IP£¬¶Ë¿ÚÁ¬½Ó
-						WSACleanup();/*WSACleanupÊÇÀ´½â³ıÓëSocket¿âµÄ°ó¶¨²¢ÇÒÊÍ·ÅSocket¿âËùÕ¼ÓÃµÄÏµÍ³×ÊÔ´¡£*/
+						closesocket(sServer);	//å…³é—­sServerï¼ˆæœåŠ¡å™¨ï¼‰IPï¼Œç«¯å£è¿æ¥
+						closesocket(sClient);	//å…³é—­sClientï¼ˆå®¢æˆ·ç«¯ï¼‰IPï¼Œç«¯å£è¿æ¥
+						WSACleanup();/*WSACleanupæ˜¯æ¥è§£é™¤ä¸Socketåº“çš„ç»‘å®šå¹¶ä¸”é‡Šæ”¾Socketåº“æ‰€å ç”¨çš„ç³»ç»Ÿèµ„æºã€‚*/
 						return -1;
 					}
 				}
@@ -209,10 +210,10 @@ int main()
 		}
 	}
 
-	//ÊÍ·ÅSocket  
-	closesocket(sServer);	//¹Ø±ÕsServer£¨·şÎñÆ÷£©IP£¬¶Ë¿ÚÁ¬½Ó
-	closesocket(sClient);	//¹Ø±ÕsClient£¨¿Í»§¶Ë£©IP£¬¶Ë¿ÚÁ¬½Ó
-	WSACleanup();/*WSACleanupÊÇÀ´½â³ıÓëSocket¿âµÄ°ó¶¨²¢ÇÒÊÍ·ÅSocket¿âËùÕ¼ÓÃµÄÏµÍ³×ÊÔ´¡£*/
+	//é‡Šæ”¾Socket  
+	closesocket(sServer);	//å…³é—­sServerï¼ˆæœåŠ¡å™¨ï¼‰IPï¼Œç«¯å£è¿æ¥
+	closesocket(sClient);	//å…³é—­sClientï¼ˆå®¢æˆ·ç«¯ï¼‰IPï¼Œç«¯å£è¿æ¥
+	WSACleanup();/*WSACleanupæ˜¯æ¥è§£é™¤ä¸Socketåº“çš„ç»‘å®šå¹¶ä¸”é‡Šæ”¾Socketåº“æ‰€å ç”¨çš„ç³»ç»Ÿèµ„æºã€‚*/
 
 	system("pause");
 	return 0;
