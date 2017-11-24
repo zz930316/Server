@@ -31,6 +31,10 @@ int main()
 	}
 	//创建用于监听的Socket  
 	sServer = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		/*创建socket。AF_INET表示在Internet中通信；
+	   sock_stream   是有保障的（即能保证数据正确传送到对方）面向连接的SOCKET;
+	   IPPROTO_TCP 和 IPPROTO_IP代表两种不同的协议,分别代表IP协议族里面的TCP协议和IP协议
+	   也可以将IPPROTO_TCP换成0, 0 代表网络协议 TCP 或者 IP  */
 	if (INVALID_SOCKET == sServer)//INVALID_SOCKET  0  是无效套接字
 	{
 		cout << "socket failed!" << endl;
