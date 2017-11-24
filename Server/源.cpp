@@ -14,9 +14,10 @@ void main()
 	//MAKEWORD(1, 1)和MAKEWORD(2, 2)的区别在于，前者只能一次接收一次，不能马上发送，而后者能
 	WSAStartup(MAKEWORD(1, 1), &wsaData);
 
-	SOCKET sockSrv = socket(AF_INET, SOCK_STREAM, 0);	//创建socket。AF_INET表示在Internet中通信；
-														//SOCK_STREAM表示socket是流套接字，对应tcp；
-														//0指定网络协议为TCP/IP  
+	SOCKET sockSrv = socket(AF_INET, SOCK_STREAM, 0);	/*创建socket。AF_INET表示在Internet中通信；
+	   sock_stream   是有保障的（即能保证数据正确传送到对方）面向连接的SOCKET;
+	    0 代表网络协议 TCP 或者 IP  ；
+	   也可以将0换成IPPROTO_TCP 和 IPPROTO_IP，分别代表TCP协议和IP协议*/
 	SOCKADDR_IN addrSrv;
 
 						/*htonl用来将主机地址转换为网络字节顺序(to network long);
