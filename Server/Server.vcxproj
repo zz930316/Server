@@ -139,6 +139,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CreateThread与_beginthreadex本质区别.cpp" />
+    <ClCompile Include="window下线程同步之（Semaphores（信号量）).cpp" />
     <ClCompile Include="源.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
